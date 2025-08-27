@@ -1,8 +1,9 @@
 # Technical Test: Simple RAG System
 
-## Overview
+Welcome! The goal of this challenge is to build a simple Retrieval-Augmented Generation (RAG) system from scratch. You'll create a basic API that can store documents, search for relevant information, and answer questions based on the stored content.
 
-Build a RAG (Retrieval-Augmented Generation) system in Python using:
+## Core Technologies
+
 - **ChromaDB** for vector storage
 - **all-MiniLM-L6-v2** for embeddings  
 - **OpenRouter** for LLM responses
@@ -43,10 +44,16 @@ MODEL_SLUG=openai/gpt-3.5-turbo
 uvicorn app.main:app --reload
 ```
 
-## What to Implement
+-----
 
-Each file has TODO comments. Main tasks:
+## Your Task & Evaluation
 
-1. **database.py**: Initialize ChromaDB, implement add/search
-2. **embeddings.py**: Load model, generate embeddings  
-3. **rag.py**: OpenRouter client, build prompt, get answer
+  * **Implementation**: Your primary task is to complete the logic in the files marked with `TODO` comments (`database.py`, `embeddings.py`, `rag.py`).
+  * **Evaluation**: Your submission will be evaluated on **correctness**, **code quality**, and the application of **software engineering best practices** (e.g., clarity, modularity, error handling, guardrails).
+  * **Freedom**: You are free to add any dependencies you see fit. We want you to use your best judgment as you would on a real project.
+
+-----
+
+## Submission
+
+To submit, create a new public repository containing your solution and share the link with us. Good luck! 😄
