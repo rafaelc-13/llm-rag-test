@@ -83,11 +83,45 @@ async def add_document(request: AddDocumentRequest):
 
 @app.get("/search", response_model=List[SearchResult])
 async def search(
-    query: str = Query(...),
-    limit: int = Query(default=5)
+    query: str = Query(..., description="Query string to search for similar documents."),
+    limit: int = Query(default=5, description="Number of top results to return.")
 ):
-    # TODO: Generate query embedding and search ChromaDB
-    return []
+    """
+    Search for similar documents using a query string.
+
+    This endpoint generates an embedding for the query, searches for similar documents in ChromaDB,
+    and returns the top matches with their similarity scores and metadata.
+
+    Args:
+        query (str): The query string to search for.
+        limit (int): The number of top results to return.
+
+    Returns:
+        List[SearchResult]: List of search results with content, score, and metadata.
+    """
+    try:
+        # 1. Gerar embedding da query
+        query_embedding = embedding_generator.generate_embeddings([query])[0]
+
+        # 2. Buscar documentos similares
+        results = db_manager.search(query_embedding, n_results=limit)
+
+        # 3. Formatar resultados para o modelo SearchResult
+        search_results = []
+        docs = results.get("documents", [[]])
+        scores = results.get("distances", [[]])
+        metadatas = results.get("metadatas", [[]])
+
+        for doc, score, meta in zip(docs[0], scores[0], metadatas[0]):
+            search_results.append(SearchResult(
+                content=doc,
+                score=score,
+                metadata=meta or {}
+            ))
+
+        return search_results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during search: {e}")
 
 
 @app.post("/chat", response_model=ChatResponse)
