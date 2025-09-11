@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+venv/
+.env/
+.env
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# ChromaDB data
+chroma_db/
+*.db
+
+# Logs
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Test/coverage
+htmlcov/
+.coverage
+.cache/
+.tox/
+.pytest_cache/
+
+# Misc
+*.bak
+*.swp
+*.tmp
