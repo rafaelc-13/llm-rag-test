@@ -1,5 +1,5 @@
 __version__ = "1.0.0"
-__author__ = "Your Name"
+__author__ = "Rafael Cavalcanti"
 __description__ = "Vector Database API with RAG capabilities"
 
 from .database import ChromaDBManager
