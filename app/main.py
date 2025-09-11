@@ -119,6 +119,12 @@ async def search(
                 metadata=meta or {}
             ))
 
+        if not search_results:
+            raise HTTPException(
+                status_code=404,
+                detail="Nenhum documento relevante encontrado para a consulta fornecida."
+            )
+
         return search_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during search: {e}")
