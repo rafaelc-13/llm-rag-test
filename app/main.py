@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 
@@ -30,8 +30,55 @@ def root():
 
 @app.post("/add_document")
 async def add_document(request: AddDocumentRequest):
-    # TODO: Generate embedding and store in ChromaDB
-    return {"success": True, "id": "doc_id"}
+    """
+    Add a document to the database.
+
+    This endpoint allows you to store a document in the database, 
+    it generates embeddings for the provided text and metadata and stores them
+    along with the metadata.
+
+    Args:
+        The request body containing the text and optional metadata.
+
+        - 'text' (str): The text content of the document, with a limit of 5000 characters.
+        - 'metadata' (dict, optional): Additional metadata to store with the document.
+            - 'author' (str, optional): The author of the document.
+            - 'date' (str, optional): The date the document was created.
+            - 'source' (str, optional): The source of the document.
+    
+    Example:
+        {
+            "text": "This is a sample document.",
+            "metadata": {
+                "author": "John Doe",
+                "date": "2023-10-01",
+                "source": "Sample Source"
+            }
+        }
+
+    Returns:
+        dict: A HTTP response indicating success and the document ID.
+    """
+    try:
+        # Validate input
+        if not request.text.strip():
+            raise HTTPException(status_code=400, detail="Text input cannot be empty.")
+        if len(request.text) > 5000:
+            raise HTTPException(status_code=400, detail="Text input exceeds the maximum length of 5000 characters.")
+
+        # Generate embeddings
+        embeddings = embedding_generator.generate_embeddings([request.text])
+
+        # Store in ChromaDB
+        doc_id = db_manager.add_document(request.text, embeddings[0], request.metadata)
+
+        return {"success": True, "id": doc_id}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except RuntimeError as re:
+        raise HTTPException(status_code=500, detail=str(re))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
 
 @app.get("/search", response_model=List[SearchResult])
