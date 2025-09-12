@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Query, HTTPException, logger
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
+import logging
 
 from .models import AddDocumentRequest, SearchResult, ChatRequest, ChatResponse
 from .database import ChromaDBManager
@@ -21,6 +22,9 @@ app.add_middleware(
 db_manager = ChromaDBManager(CHROMADB_PATH)
 embedding_generator = EmbeddingGenerator(EMBEDDING_MODEL)
 rag_pipeline = RAGPipeline(db_manager, embedding_generator, OPENROUTER_API_KEY, MODEL_SLUG)
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @app.get("/")
@@ -65,6 +69,8 @@ async def add_document(request: AddDocumentRequest):
             raise HTTPException(status_code=400, detail="Text input cannot be empty.")
         if len(request.text) > 5000:
             raise HTTPException(status_code=400, detail="Text input exceeds the maximum length of 5000 characters.")
+        if not request.metadata or not isinstance(request.metadata, dict) or len(request.metadata) == 0:
+            raise HTTPException(status_code=400, detail="Metadata must be a non-empty dictionary.")
 
         # Generate embeddings
         embeddings = embedding_generator.generate_embeddings([request.text])
