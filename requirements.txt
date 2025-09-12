@@ -2,7 +2,7 @@ chromadb
 fastapi
 numpy
 onnxruntime
-openai
+openai==0.28.1 # pinning to avoid breaking changes, secure and compatible version to current stack
 python-dotenv
 requests
 sentence-transformers
