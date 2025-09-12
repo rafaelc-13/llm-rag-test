@@ -88,7 +88,7 @@ class RAGPipeline:
                 "tokens_used": tokens_used
             }
 
-        except openai.error.OpenAIError as oe:
+        except Exception as oe:
             logger.error(f"Erro na chamada ao modelo LLM: {oe}")
             return {
                 "answer": "Erro ao consultar o modelo LLM. Verifique sua chave de API e limite de uso.",
