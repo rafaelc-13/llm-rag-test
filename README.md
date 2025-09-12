@@ -72,7 +72,6 @@ To submit, create a new public repository containing your solution and share the
     llm-rag-test/
     ├── app/
     │   ├── main.py
-    |   ├── .env
     │   ├── database.py
     │   ├── config.py
     │   ├── embeddings.py
