@@ -1,8 +1,10 @@
-fastapi
-uvicorn
 chromadb
-onnxruntime
+fastapi
 numpy
-sentence-transformers
+onnxruntime
 openai
 python-dotenv
+requests
+sentence-transformers
+streamlit
+uvicorn
