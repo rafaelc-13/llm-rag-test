@@ -41,8 +41,11 @@ CHROMADB_PATH=./chroma_db
 EMBEDDING_MODEL=all-MiniLM-L6-v2
 MODEL_SLUG=openai/gpt-3.5-turbo
 
-# Run
+# Run Backend
 uvicorn app.main:app --reload
+
+#Run Interface
+streamlit run streamlit_app.py
 ```
 
 ## Your Task & Evaluation
@@ -54,3 +57,58 @@ uvicorn app.main:app --reload
 ## Submission
 
 To submit, create a new public repository containing your solution and share the link with us. Good luck! 😄
+
+---
+
+## Additional Notes & Engineering Decisions
+
+- **Pinned openai version:**  
+  The project uses `openai==0.28.1` to ensure compatibility with OpenRouter's OpenAI-compatible API.  
+  Newer versions of the `openai` library (>=1.0.0) are not compatible with this integration.  
+  If you upgrade, you must refactor the LLM call logic.
+
+- **Project Structure:**
+    ```
+    llm-rag-test/
+    ├── app/
+    │   ├── main.py
+    |   ├── .env
+    │   ├── database.py
+    │   ├── config.py
+    │   ├── embeddings.py
+    │   ├── rag.py
+    │   ├── models.py
+    │   └── ...
+    ├── streamlit_app.py
+    ├── requirements.txt
+    └── README.md
+    ```
+
+- **Quick API Test Examples:**
+    ```bash
+    # Add a document
+    curl -X POST "http://localhost:8000/add_document" -H "Content-Type: application/json" -d '{"text": "Brazil é dos Brasileiros", "metadata": {"contexto": "País", "date": "2024-06-01"}}'
+
+    # Search for documents
+    curl "http://localhost:8000/search?query=Brazil&limit=3"
+
+    # RAG Chat
+    curl -X POST "http://localhost:8000/chat" -H "Content-Type: application/json" -d '{"question": "Quem é o dono do Brazil?", "max_results": 2}'
+    ```
+
+- **Engineering Notes:**
+    - Modular, extensible, and clean codebase.
+    - Robust error handling and logging throughout the stack.
+    - All endpoints are fully documented and testable via Swagger (`/docs`).
+    - Streamlit frontend guides the user through all flows.
+    - Ready for extension: add authentication, new vector DBs, or LLM providers easily.
+
+- **Possible Extensions:**
+    - Add authentication and user management.
+    - Support for multiple embedding or LLM models.
+    - Deploy with Docker or on cloud platforms.
+    - Add monitoring and analytics for usage.
+
+---
+
+**For any questions or suggestions, feel free to open an issue or contact the author.**
