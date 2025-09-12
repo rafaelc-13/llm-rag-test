@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, logger
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 
@@ -78,7 +78,7 @@ async def add_document(request: AddDocumentRequest):
     except RuntimeError as re:
         raise HTTPException(status_code=500, detail=str(re))
     except Exception as e:
-        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
+        raise HTTPException(status_code=500, detail= f"An unexpected error occurred.{e}")
 
 
 @app.get("/search", response_model=List[SearchResult])
@@ -130,15 +130,46 @@ async def search(
         raise HTTPException(status_code=500, detail=f"Error during search: {e}")
 
 
-@app.post("/chat", response_model=ChatResponse)
+@app.post("/chat", response_model=ChatResponse, summary="RAG Chat", tags=["RAG"])
 async def chat(request: ChatRequest):
-    # TODO: Implement RAG
-    result = rag_pipeline.generate_answer(
-        request.question,
-        request.max_results
-    )
-    
-    return ChatResponse(**result)
+    """
+    Does a RAG query: retrieves relevant context, sends it to the LLM, and returns the response with sources.
+
+    - **question**: User's question.
+    - **max_results**: Maximum number of context documents to retrieve (default: 3).
+
+    Example payload:
+    {
+        "question": "What is the capital of Japan?",
+        "max_results": 3
+    }
+    """
+    try:
+        if not request.question or not request.question.strip():
+            raise HTTPException(status_code=400, detail="O campo 'question' não pode ser vazio.")
+        if request.max_results < 1 or request.max_results > 10:
+            raise HTTPException(status_code=400, detail="O campo 'max_results' deve estar entre 1 e 10.")
+
+        # Logging para rastreabilidade
+        logger.info(f"Recebida pergunta para RAG: '{request.question}' (max_results={request.max_results})")
+
+        result = rag_pipeline.generate_answer(
+            request.question,
+            request.max_results
+        )
+
+        # Checagem de resposta do pipeline
+        if not result.get("answer"):
+            raise HTTPException(status_code=500, detail="Falha ao gerar resposta.")
+
+        return ChatResponse(**result)
+
+    except HTTPException as he:
+        logger.warning(f"Erro de input no endpoint /chat: {he.detail}")
+        raise he
+    except Exception as e:
+        logger.error(f"Erro inesperado no endpoint /chat: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao processar a requisição do chat.")
 
 
 if __name__ == "__main__":
